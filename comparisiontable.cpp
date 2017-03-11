@@ -36,9 +36,44 @@ ComparisionTable::ComparisionTable(ComparisionTableData data, QWidget *parent) :
     connect(pTable, SIGNAL(pressed(QModelIndex)), SLOT(resolve()));
 }
 
-ComparisionTable::ComparisionTable()
+ComparisionTable::ComparisionTable(QWidget *parent)
+    : QWidget(parent)
 {
+    pTable      = new QTableWidget(0, 0, this);
+    lblIS       = new QLabel("ИС: -");
+    lblOS       = new QLabel("ОС: -");
 
+    layoutWidgets();
+}
+
+void ComparisionTable::setData(ComparisionTableData data)
+{
+    n_rand      = 0.58; // число случайной согласованности. ТАБЛИЦА
+    labels      = data.labels;
+
+    // Добавляем строку "Сумма"
+    QStringList horLabels = data.labels;
+    horLabels.append("Сумма");
+
+    QStringList vertLabels = data.labels;
+    vertLabels.append("b_i");
+    vertLabels.append("Приор.");
+    vertLabels.append("A_j*x_j");
+    pTable->insertColumn(data.count);
+    pTable->insertColumn(data.count);
+    pTable->insertColumn(data.count);
+
+    pTable->setHorizontalHeaderLabels(vertLabels);
+    pTable->setVerticalHeaderLabels(horLabels);
+
+    elementCount = data.count;
+    loadData(data.data);
+
+    // Отрегулируем ширину столбцов
+    for (int col = 0; col < pTable->columnCount(); col++)
+        pTable->setColumnWidth(col, 50);
+
+    solveALL();
 }
 
 Data ComparisionTable::getData()
@@ -93,7 +128,7 @@ void ComparisionTable::layoutWidgets()
     QVBoxLayout *pVBox  = new QVBoxLayout();
     pVBox->addWidget(lblIS, 0, Qt::AlignTop);
     pVBox->addWidget(lblOS, 0, Qt::AlignTop);
-    QHBoxLayout *pHBox  = new QHBoxLayout(this);
+    QHBoxLayout *pHBox  = new QHBoxLayout();
     pHBox->addWidget(pTable);
     pHBox->addLayout(pVBox);
     this->setLayout(pHBox);

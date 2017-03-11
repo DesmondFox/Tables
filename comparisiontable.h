@@ -17,7 +17,7 @@ class ComparisionTable : public QWidget
     Q_OBJECT
 public:
     explicit ComparisionTable(ComparisionTableData data, QWidget *parent = 0);
-    explicit ComparisionTable();
+    explicit ComparisionTable(QWidget *parent = 0);
 
 
     QStringList     labels;
@@ -29,6 +29,7 @@ public:
     qreal           OS;
     qreal           sumA_j;
 
+    void setData(ComparisionTableData data);
 
     Data    getData();
 

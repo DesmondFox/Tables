@@ -39,6 +39,12 @@ PairwiseComp::PairwiseComp(ComparisionTableData data, QString name, QWidget *par
     connect(pTable, SIGNAL(pressed(QModelIndex)), SLOT(resolve()));
 }
 
+void PairwiseComp::setGlobalPriorities3lvl(const QVector<qreal> &pr)
+{
+    globPr3lvl.clear();
+    globPr3lvl = pr;
+}
+
 void PairwiseComp::layoutWidgets()
 {
     QVBoxLayout *pVBox  = new QVBoxLayout();

@@ -27,11 +27,15 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     comparisiontable.cpp \
     pairwisecomp.cpp \
-    globalcriteriestable.cpp
+    globalcriteriestable.cpp \
+    finaltable.cpp \
+    dataprocessing.cpp
 
 HEADERS  += mainwindow.h \
     comparisiontable.h \
     pairwisecomp.h \
-    globalcriteriestable.h
+    globalcriteriestable.h \
+    finaltable.h \
+    dataprocessing.h
 
 FORMS    += mainwindow.ui
