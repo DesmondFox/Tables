@@ -20,9 +20,10 @@ class DataProcessing : public QObject
     Q_OBJECT
 public:
     explicit DataProcessing(QObject *parent = 0);
-    void loadFile(const QString &path);
-    void saveFile(const QString &path, DataBlock &block);
+    bool loadFile(const QString &path);
+    void saveFile(const QString &path, DataBlock block);
     DataBlock getData();
+    void clear();
 
 //    Data getComparisionTableData();
 

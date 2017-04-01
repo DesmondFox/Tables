@@ -16,9 +16,8 @@ class ComparisionTable : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ComparisionTable(ComparisionTableData data, QWidget *parent = 0);
     explicit ComparisionTable(QWidget *parent = 0);
-
+    ~ComparisionTable();
 
     QStringList     labels;
     QVector<qreal>  b_i;
@@ -30,6 +29,7 @@ public:
     qreal           sumA_j;
 
     void setData(ComparisionTableData data);
+    void clear();
 
     Data    getData();
 
@@ -42,6 +42,7 @@ protected:
 
     void    loadData(QVector<qreal> values);
 
+    void    solveInverseProportion();
     void    solveVerticalSum();
     void    solveB_i();
     void    solvePriorities();
@@ -51,8 +52,10 @@ protected:
     void    solveALL();
     int     elementCount;
     qreal   n_rand;
+    QVBoxLayout *pLay;
 
 signals:
+    void sigResolve();
 
 public slots:
 

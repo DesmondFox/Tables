@@ -6,18 +6,22 @@
 #include "comparisiontable.h"
 #include "pairwisecomp.h"
 
-class GlobalCriteriesTable : public QWidget
+class GlobalCriteriesTable : public QTableWidget
 {
     Q_OBJECT
 public:
-    explicit GlobalCriteriesTable(ComparisionTable *table, QList<PairwiseComp*> lst, QWidget *parent = 0);
-    QVector<qreal> glPriorities;
+    explicit GlobalCriteriesTable(QWidget *parent = 0);
+
+    void setData(ComparisionTable *table, const QVector<PairwiseComp*> &vec);
+    void solve();
+    void clear();
+
 
 private:
-    QTableWidget *pTableWgt;
-    void LoadData(ComparisionTable *table, QList<PairwiseComp*> lst);
-    void solveGlPrior(ComparisionTable *table, QList<PairwiseComp *> lst);
-    void glPr3lvlToTable(QList<PairwiseComp *> lst);
+    void solvePriorities3Lvl();
+
+    QVector<PairwiseComp *> vectorOfTables;
+    ComparisionTable        *pTable;
 signals:
 
 public slots:

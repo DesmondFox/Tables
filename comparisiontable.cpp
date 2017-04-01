@@ -1,41 +1,5 @@
 #include "comparisiontable.h"
 
-ComparisionTable::ComparisionTable(ComparisionTableData data, QWidget *parent) : QWidget(parent)
-{
-    pTable      = new QTableWidget(data.count+1, data.count /* столбцы */, this);
-    lblIS       = new QLabel("ИС: -");
-    lblOS       = new QLabel("ОС: -");
-    n_rand      = 0.58; // число случайной согласованности. ТАБЛИЦА
-    labels      = data.labels;
-
-    // Добавляем строку "Сумма"
-    QStringList horLabels = data.labels;
-    horLabels.append("Сумма");
-
-    QStringList vertLabels = data.labels;
-    vertLabels.append("b_i");
-    vertLabels.append("Приор.");
-    vertLabels.append("A_j*x_j");
-    pTable->insertColumn(data.count);
-    pTable->insertColumn(data.count);
-    pTable->insertColumn(data.count);
-
-    pTable->setHorizontalHeaderLabels(vertLabels);
-    pTable->setVerticalHeaderLabels(horLabels);
-
-    elementCount = data.count;
-    loadData(data.data);
-
-    // Отрегулируем ширину столбцов
-    for (int col = 0; col < pTable->columnCount(); col++)
-        pTable->setColumnWidth(col, 50);
-
-    solveALL();
-    layoutWidgets();
-
-    connect(pTable, SIGNAL(pressed(QModelIndex)), SLOT(resolve()));
-}
-
 ComparisionTable::ComparisionTable(QWidget *parent)
     : QWidget(parent)
 {
@@ -44,12 +8,24 @@ ComparisionTable::ComparisionTable(QWidget *parent)
     lblOS       = new QLabel("ОС: -");
 
     layoutWidgets();
+    connect(pTable, SIGNAL(pressed(QModelIndex)), SLOT(resolve()));
+}
+
+ComparisionTable::~ComparisionTable()
+{
+    clear();
 }
 
 void ComparisionTable::setData(ComparisionTableData data)
 {
     n_rand      = 0.58; // число случайной согласованности. ТАБЛИЦА
     labels      = data.labels;
+
+    // Добавим строки и столбцы для данных
+    for (int i = 0; i < data.count; i++)
+        pTable->insertColumn(0);
+    for (int j = 0; j < data.count + 1; j++) // ещё строку для суммы
+        pTable->insertRow(0);
 
     // Добавляем строку "Сумма"
     QStringList horLabels = data.labels;
@@ -74,6 +50,26 @@ void ComparisionTable::setData(ComparisionTableData data)
         pTable->setColumnWidth(col, 50);
 
     solveALL();
+}
+
+void ComparisionTable::clear()
+{
+    labels.clear();
+    b_i.clear();
+    priorities.clear();
+    A_j.clear();
+    vertSums.clear();
+    IS  = 0.0;
+    OS  = 0.0;
+    sumA_j  = 0.0;
+
+    for (int i = pTable->columnCount(); i >= 0; i--)
+        pTable->removeColumn(i);
+    for (int i = pTable->rowCount(); i >= 0; i--)
+        pTable->removeRow(i);
+
+    lblIS->setText("ИС: -");
+    lblOS->setText("ОС: -");
 }
 
 Data ComparisionTable::getData()
@@ -114,8 +110,13 @@ void ComparisionTable::loadData(QVector<qreal> values)
             // По умолчанию там 1 стоят
             if (i == j)
             {
-                itm->setFlags(Qt::ItemIsSelectable);
+                itm->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
                 itm->setBackgroundColor(QColor(150, 150, 150, 100));
+            }
+            if (i > j)
+            {
+                itm->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+                itm->setBackgroundColor(QColor(250, 150, 150, 100));
             }
 
             pTable->setItem(i, j, itm);
@@ -123,15 +124,36 @@ void ComparisionTable::loadData(QVector<qreal> values)
     }
 }
 
+void ComparisionTable::solveInverseProportion()
+{
+    // Пересчет обратных пропорций в таблице
+    QTableWidgetItem *itm = NULL;
+    for (int i = 0; i < elementCount; i++)
+    {
+        for (int j = 0; j < elementCount; j++)
+        {
+            if (i > j)
+            {
+                itm = pTable->item(i, j);
+                qreal res = 1 / pTable->item(j, i)->text().toDouble();
+                itm->setText(QString::number(res));
+            }
+        }
+    }
+}
+
 void ComparisionTable::layoutWidgets()
 {
+    pLay    = new QVBoxLayout();
     QVBoxLayout *pVBox  = new QVBoxLayout();
     pVBox->addWidget(lblIS, 0, Qt::AlignTop);
     pVBox->addWidget(lblOS, 0, Qt::AlignTop);
     QHBoxLayout *pHBox  = new QHBoxLayout();
     pHBox->addWidget(pTable);
     pHBox->addLayout(pVBox);
-    this->setLayout(pHBox);
+
+    pLay->addLayout(pHBox);
+    this->setLayout(pLay);
     this->resize(450, 180);
 }
 
@@ -154,7 +176,7 @@ void ComparisionTable::solveVerticalSum()
         itm->setText(QString::number(vertSums[col]));
         itm->setBackgroundColor(QColor(50, 50, 255, 70));
         pTable->setItem(pTable->rowCount()-1, col, itm);
-        itm->setFlags(Qt::ItemIsSelectable);
+        itm->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
     }
 
 }
@@ -178,7 +200,7 @@ void ComparisionTable::solveB_i()
         itm = new QTableWidgetItem();
         itm->setText(QString::number(b_i[row]));
         itm->setBackgroundColor(QColor(50, 255, 50, 50));
-        itm->setFlags(Qt::ItemIsSelectable);
+        itm->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
         pTable->setItem(row, elementCount, itm);
     }
 }
@@ -203,7 +225,7 @@ void ComparisionTable::solvePriorities()
         itm = new QTableWidgetItem();
         itm->setText(QString::number(priorities[row]));
         itm->setBackgroundColor(QColor(150, 255, 150, 65));
-        itm->setFlags(Qt::ItemIsSelectable);
+        itm->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
         pTable->setItem(row, elementCount+1, itm);
     }
 
@@ -227,7 +249,7 @@ void ComparisionTable::solveA_j()
         itm = new QTableWidgetItem();
         itm->setText(QString::number(A_j[row]));
         itm->setBackgroundColor(QColor(70, 255, 255, 80));
-        itm->setFlags(Qt::ItemIsSelectable);
+        itm->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
         pTable->setItem(row, elementCount+2, itm);
     }
 
@@ -239,7 +261,7 @@ void ComparisionTable::solveA_j()
     QTableWidgetItem *pSum = new QTableWidgetItem();
     pSum->setText(QString::number(sum));
     pSum->setBackgroundColor(QColor(50, 50, 255, 70));
-    pSum->setFlags(Qt::ItemIsSelectable);
+    pSum->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
     pTable->setItem(elementCount, elementCount+2, pSum);
 }
 
@@ -262,17 +284,20 @@ void ComparisionTable::solveALL()
     priorities.clear();
     A_j.clear();
 
+    solveInverseProportion();
     solveVerticalSum();
     solveB_i();
     solvePriorities();
     solveA_j();
     solveIS();
     solveOS();
+
 }
 
 void ComparisionTable::resolve()
 {
     qDebug() << "Note:\t    Resolve";
     solveALL();
+    emit sigResolve();
 }
 

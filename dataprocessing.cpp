@@ -5,13 +5,13 @@ DataProcessing::DataProcessing(QObject *parent) : QObject(parent)
 
 }
 
-void DataProcessing::loadFile(const QString &path)
+bool DataProcessing::loadFile(const QString &path)
 {
     QFile file(path);
     if(!file.open(QIODevice::ReadOnly))
     {
         emit error(1);
-        return;
+        return false;
     }
 
     QTextStream strm(&file);
@@ -24,7 +24,7 @@ void DataProcessing::loadFile(const QString &path)
     if (list[0] != "# _HEADER")
     {
         emit error(2);
-        return;
+        return false;
     }
 
     int count3lvl = 0;
@@ -84,9 +84,12 @@ void DataProcessing::loadFile(const QString &path)
         }
     }
     qDebug() << count3lvl;
+
+    file.close();
+    return true;
 }
 
-void DataProcessing::saveFile(const QString &path, DataBlock &block)
+void DataProcessing::saveFile(const QString &path, DataBlock block)
 {
     QFile file(path);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate))
@@ -97,7 +100,7 @@ void DataProcessing::saveFile(const QString &path, DataBlock &block)
     QTextStream strm(&file);
 
     QString tmp;
-    /// Сформируем список
+    // Сформируем список
     QStringList list;
     list.append("# _HEADER");
 
@@ -153,6 +156,8 @@ void DataProcessing::saveFile(const QString &path, DataBlock &block)
 
     for (int i = 0; i < list.length(); i++)
         strm << list[i] << endl;
+
+    file.close();
 }
 
 DataBlock DataProcessing::getData()
@@ -162,6 +167,13 @@ DataBlock DataProcessing::getData()
     block.cmp2      = compData2lvl;
     block.cmp3      = compData3lvl;
     return block;
+}
+
+void DataProcessing::clear()
+{
+    compData2lvl.clear();
+    compData3lvl.clear();
+
 }
 
 //Data DataProcessing::getComparisionTableData()
