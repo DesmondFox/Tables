@@ -23,8 +23,6 @@ public:
     ~MainWindow();
 
 protected:
-    void loadDataFromBlock(DataBlock block);
-
 private:
     Ui::MainWindow *ui;
     DataProcessing *pDataProccess;

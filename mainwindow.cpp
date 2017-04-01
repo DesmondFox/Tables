@@ -107,17 +107,14 @@ DataBlock MainWindow::getData()
     return block;
 }
 
-void MainWindow::loadDataFromBlock(DataBlock block)
-{
-
-}
-
 void MainWindow::slotLoad()
 {
     filePath = QFileDialog::getOpenFileName(this, tr("Open file"), tr(""), tr("Eps File (*.eps)"));
 
     DataBlock       block;
 
+    // На всякий случай, надо закрывать открытый файл
+    slotClose();
     // Загрузка файла и заполнение таблиц
     if (pDataProccess->loadFile(filePath))
     {
