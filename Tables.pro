@@ -28,7 +28,6 @@ SOURCES += main.cpp\
     comparisiontable.cpp \
     pairwisecomp.cpp \
     globalcriteriestable.cpp \
-    finaltable.cpp \
     dataprocessing.cpp \
     resulttable.cpp \
     newfiledialog.cpp
@@ -37,7 +36,6 @@ HEADERS  += mainwindow.h \
     comparisiontable.h \
     pairwisecomp.h \
     globalcriteriestable.h \
-    finaltable.h \
     dataprocessing.h \
     resulttable.h \
     newfiledialog.h

@@ -15,16 +15,13 @@ GlobalCriteriesTable::GlobalCriteriesTable(QWidget *parent)
                  << "ГЛ КР 2Р"
                  << "ГЛ КР 3Р";
     this->setHorizontalHeaderLabels(headerLabels);
-
-
-
-
 }
 
 void GlobalCriteriesTable::setData(ComparisionTable *table, const QVector<PairwiseComp *> &vec)
 {
     pTable          = table;
     vectorOfTables  = vec;
+
 
     // Добавление строк в таблицу
     for (int i = 0; i < vectorOfTables.length(); i++)
@@ -49,6 +46,13 @@ void GlobalCriteriesTable::solve()
     //
     // МЕТОД ДЛЯ ПРОСЧЕТА ДАННЫХ.
     //
+    QStringList headerLabels;
+    headerLabels << "КР 3Р"
+                 << "ЛОК КР"
+                 << "ГЛ КР 2Р"
+                 << "ГЛ КР 3Р";
+
+    this->setHorizontalHeaderLabels(headerLabels);
 
     // Для разноцветности клеток
     QVector<QColor> colors;
